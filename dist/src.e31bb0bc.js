@@ -29566,7 +29566,117 @@ if ("development" === 'production') {
 } else {
   module.exports = require('./cjs/react-dom.development.js');
 }
-},{"./cjs/react-dom.development.js":"../node_modules/react-dom/cjs/react-dom.development.js"}],"components/MainScreen.js":[function(require,module,exports) {
+},{"./cjs/react-dom.development.js":"../node_modules/react-dom/cjs/react-dom.development.js"}],"Context/pomodoro-context.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.PomodoroContext = void 0;
+
+var _react = require("react");
+
+var PomodoroContext = /*#__PURE__*/(0, _react.createContext)();
+exports.PomodoroContext = PomodoroContext;
+},{"react":"../node_modules/react/index.js"}],"hooks/use-counter.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.useCounter = void 0;
+
+var _react = require("react");
+
+var _pomodoroContext = require("../Context/pomodoro-context");
+
+//prettier-ignore
+var countdownSeconds = function countdownSeconds(seconds) {
+  return {
+    type: "countdownSeconds",
+    payload: seconds
+  };
+}; //prettier-ignore
+
+
+var countdownMinutes = function countdownMinutes(minutes) {
+  return {
+    type: "countdownMinutes",
+    payload: minutes
+  };
+};
+
+var setSeconds = function setSeconds() {
+  return {
+    type: "setSeconds"
+  };
+};
+
+var useCounter = function useCounter() {
+  var _useContext = (0, _react.useContext)(_pomodoroContext.PomodoroContext),
+      pomodoroState = _useContext.pomodoroState,
+      pomodoroDispatch = _useContext.pomodoroDispatch;
+
+  var minutes = pomodoroState.minutes,
+      seconds = pomodoroState.seconds;
+  return function () {
+    var interval = setTimeout(function () {
+      clearInterval(interval);
+
+      if (seconds !== 0) {
+        pomodoroDispatch(countdownSeconds(seconds));
+      }
+
+      if (minutes !== 0) {
+        if (seconds === 0) {
+          pomodoroDispatch(setSeconds);
+          pomodoroDispatch(countdownMinutes(minutes));
+        }
+      }
+
+      if (minutes === 0 && seconds === 0) {
+        console.log("Pomodoro is over");
+      }
+    }, 1000);
+  };
+};
+
+exports.useCounter = useCounter;
+},{"react":"../node_modules/react/index.js","../Context/pomodoro-context":"Context/pomodoro-context.js"}],"components/timer.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.Timer = void 0;
+
+var _react = _interopRequireWildcard(require("react"));
+
+var _pomodoroContext = require("../Context/pomodoro-context");
+
+var _useCounter = require("../hooks/use-counter");
+
+function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+
+var Timer = function Timer() {
+  var _useContext = (0, _react.useContext)(_pomodoroContext.PomodoroContext),
+      pomodoroState = _useContext.pomodoroState;
+
+  var minutes = pomodoroState.minutes,
+      seconds = pomodoroState.seconds;
+  var startTimer = (0, _useCounter.useCounter)();
+  (0, _react.useEffect)(function () {
+    startTimer();
+  }, [seconds, minutes]);
+  var timerMinutes = minutes < 10 ? "0".concat(minutes) : minutes;
+  var timerSeconds = seconds < 10 ? "0".concat(seconds) : seconds;
+  return /*#__PURE__*/_react.default.createElement("div", null, /*#__PURE__*/_react.default.createElement("h1", null, "".concat(timerMinutes, ":").concat(timerSeconds)));
+};
+
+exports.Timer = Timer;
+},{"react":"../node_modules/react/index.js","../Context/pomodoro-context":"Context/pomodoro-context.js","../hooks/use-counter":"hooks/use-counter.js"}],"components/main-screen.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -29576,14 +29686,67 @@ exports.MainScreen = void 0;
 
 var _react = _interopRequireDefault(require("react"));
 
+var _timer = require("./timer");
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var MainScreen = function MainScreen() {
-  return /*#__PURE__*/_react.default.createElement("div", null, /*#__PURE__*/_react.default.createElement("h1", null, "MainScreen"));
+  return /*#__PURE__*/_react.default.createElement("div", null, /*#__PURE__*/_react.default.createElement(_timer.Timer, null));
 };
 
 exports.MainScreen = MainScreen;
-},{"react":"../node_modules/react/index.js"}],"App.js":[function(require,module,exports) {
+},{"react":"../node_modules/react/index.js","./timer":"components/timer.js"}],"Context/pomodoro-reducer.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.pomodoroReducer = void 0;
+
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+var pomodoroReducer = function pomodoroReducer() {
+  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+  var action = arguments.length > 1 ? arguments[1] : undefined;
+
+  switch (action.type) {
+    case "countdownSeconds":
+      return _objectSpread(_objectSpread({}, state), {}, {
+        seconds: action.payload - 1
+      });
+
+    case "countdownMinutes":
+      return _objectSpread(_objectSpread({}, state), {}, {
+        minutes: action.payload - 1
+      });
+
+    case "setSeconds":
+      return _objectSpread(_objectSpread({}, state), {}, {
+        seconds: 60
+      });
+
+    case "setMinutes":
+      return _objectSpread(_objectSpread({}, state), {}, {
+        minutes: 25
+      });
+
+    case "setBreak":
+      return _objectSpread(_objectSpread({}, state), {}, {
+        isBreak: true,
+        breakTime: 5
+      });
+
+    default:
+      return state;
+  }
+};
+
+exports.pomodoroReducer = pomodoroReducer;
+},{}],"app.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -29591,19 +29754,53 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.App = void 0;
 
-var _react = _interopRequireDefault(require("react"));
+var _react = _interopRequireWildcard(require("react"));
 
-var _MainScreen = require("./components/MainScreen");
+var _mainScreen = require("./components/main-screen");
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+var _pomodoroContext = require("./Context/pomodoro-context");
 
-var App = function App(_ref) {
-  var rest = Object.assign({}, _ref);
-  return /*#__PURE__*/_react.default.createElement("div", null, /*#__PURE__*/_react.default.createElement(_MainScreen.MainScreen, null));
+var _pomodoroReducer = require("./Context/pomodoro-reducer");
+
+function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
+
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+function _iterableToArrayLimit(arr, i) { var _i = arr && (typeof Symbol !== "undefined" && arr[Symbol.iterator] || arr["@@iterator"]); if (_i == null) return; var _arr = []; var _n = true; var _d = false; var _s, _e; try { for (_i = _i.call(arr); !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+
+var App = function App() {
+  var initialState = {
+    isBreak: false,
+    minutes: 4,
+    seconds: 9,
+    breakTime: 5
+  };
+
+  var _useReducer = (0, _react.useReducer)(_pomodoroReducer.pomodoroReducer, initialState),
+      _useReducer2 = _slicedToArray(_useReducer, 2),
+      pomodoroState = _useReducer2[0],
+      pomodoroDispatch = _useReducer2[1];
+
+  return /*#__PURE__*/_react.default.createElement(_pomodoroContext.PomodoroContext.Provider, {
+    value: {
+      pomodoroState: pomodoroState,
+      pomodoroDispatch: pomodoroDispatch
+    }
+  }, /*#__PURE__*/_react.default.createElement("div", null, /*#__PURE__*/_react.default.createElement(_mainScreen.MainScreen, null)));
 };
 
 exports.App = App;
-},{"react":"../node_modules/react/index.js","./components/MainScreen":"components/MainScreen.js"}],"../node_modules/parcel-bundler/src/builtins/bundle-url.js":[function(require,module,exports) {
+},{"react":"../node_modules/react/index.js","./components/main-screen":"components/main-screen.js","./Context/pomodoro-context":"Context/pomodoro-context.js","./Context/pomodoro-reducer":"Context/pomodoro-reducer.js"}],"../node_modules/parcel-bundler/src/builtins/bundle-url.js":[function(require,module,exports) {
 var bundleURL = null;
 
 function getBundleURLCached() {
@@ -29682,14 +29879,14 @@ var _react = _interopRequireDefault(require("react"));
 
 var _reactDom = _interopRequireDefault(require("react-dom"));
 
-var _App = require("./App");
+var _app = require("./app");
 
 require("./scss/styles.scss");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-_reactDom.default.render( /*#__PURE__*/_react.default.createElement(_App.App, null), document.getElementById('root'));
-},{"react":"../node_modules/react/index.js","react-dom":"../node_modules/react-dom/index.js","./App":"App.js","./scss/styles.scss":"scss/styles.scss"}],"../node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+_reactDom.default.render( /*#__PURE__*/_react.default.createElement(_app.App, null), document.querySelector("#root"));
+},{"react":"../node_modules/react/index.js","react-dom":"../node_modules/react-dom/index.js","./app":"app.js","./scss/styles.scss":"scss/styles.scss"}],"../node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -29717,7 +29914,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "42011" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "40347" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
