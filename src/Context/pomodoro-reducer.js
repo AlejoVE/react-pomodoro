@@ -14,18 +14,23 @@ export const pomodoroReducer = (state = {}, action) => {
         case "setSeconds":
             return {
                 ...state,
-                seconds: 60,
+                seconds: 59,
             };
         case "setMinutes":
             return {
                 ...state,
                 minutes: 25,
             };
-        case "setBreak":
+        case "startBreak":
             return {
                 ...state,
                 isBreak: true,
-                breakTime: 5,
+                minutes: 1,
+            };
+        case "finishBreak":
+            return {
+                ...state,
+                isBreak: false,
             };
 
         default:

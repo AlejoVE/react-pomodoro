@@ -1,25 +1,16 @@
-import {useState, useEffect, useContext} from "react";
+import {useContext} from "react";
 import {PomodoroContext} from "../Context/pomodoro-context";
-
-//prettier-ignore
-const countdownSeconds = seconds => ({
-    type: "countdownSeconds",
-    payload: seconds,
-});
-
-//prettier-ignore
-const countdownMinutes = minutes => ({
-    type: "countdownMinutes",
-    payload: minutes,
-});
-
-const setSeconds = () => ({
-    type: "setSeconds",
-});
+import {
+    countdownSeconds,
+    countdownMinutes,
+    setSeconds,
+    startBreak,
+    finishBreak,
+} from "../helpers/actions";
 
 export const useCounter = () => {
     const {pomodoroState, pomodoroDispatch} = useContext(PomodoroContext);
-    const {minutes, seconds} = pomodoroState;
+    const {minutes, seconds, isBreak} = pomodoroState;
 
     return () => {
         const interval = setTimeout(() => {
@@ -27,18 +18,25 @@ export const useCounter = () => {
 
             if (seconds !== 0) {
                 pomodoroDispatch(countdownSeconds(seconds));
+                return;
             }
 
             if (minutes !== 0) {
-                if (seconds === 0) {
-                    pomodoroDispatch(setSeconds);
-                    pomodoroDispatch(countdownMinutes(minutes));
-                }
+                //To set 59 seconds in timer
+                pomodoroDispatch(setSeconds());
+                //To subtract one minute
+                pomodoroDispatch(countdownMinutes(minutes));
+                return;
             }
 
-            if (minutes === 0 && seconds === 0) {
-                console.log("Pomodoro is over");
+            if (isBreak) {
+                pomodoroDispatch(finishBreak());
+                console.log("Break is over");
+                return;
             }
+            //If seconds and minutes = 0, the pomodoro is over
+            console.log("Pomodoro is over");
+            pomodoroDispatch(startBreak());
         }, 1000);
     };
 };
