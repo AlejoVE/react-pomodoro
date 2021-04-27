@@ -7,6 +7,7 @@ import {
     startBreak,
     finishBreak,
     setMinutes,
+    setBreakTime,
 } from "../helpers/actions";
 
 export const useCounter = () => {
@@ -50,6 +51,7 @@ export const useCounter = () => {
             //If seconds and minutes = 0, the pomodoro is over
             console.log("Pomodoro is over");
             pomodoroDispatch(startBreak(breakTime));
+            setBreakTime(true);
         }, 1000);
     };
 };

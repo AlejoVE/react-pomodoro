@@ -29584,7 +29584,7 @@ exports.PomodoroContext = PomodoroContext;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.setBreakTime = exports.finishBreak = exports.startPomodoro = exports.startBreak = exports.setMinutes = exports.setSeconds = exports.countdownMinutes = exports.countdownSeconds = void 0;
+exports.setReset = exports.setBreakTime = exports.finishBreak = exports.startPomodoro = exports.startBreak = exports.setMinutes = exports.setSeconds = exports.countdownMinutes = exports.countdownSeconds = void 0;
 
 //prettier-ignore
 var countdownSeconds = function countdownSeconds(seconds) {
@@ -29657,9 +29657,19 @@ var setBreakTime = function setBreakTime(minutes) {
     type: "setBreakTime",
     payload: minutes
   };
-};
+}; //prettier-ignore
+
 
 exports.setBreakTime = setBreakTime;
+
+var setReset = function setReset(minutes) {
+  return {
+    type: "setReset",
+    payload: minutes
+  };
+};
+
+exports.setReset = setReset;
 },{}],"hooks/use-counter.js":[function(require,module,exports) {
 "use strict";
 
@@ -29716,6 +29726,7 @@ var useCounter = function useCounter() {
 
       console.log("Pomodoro is over");
       pomodoroDispatch((0, _actions.startBreak)(breakTime));
+      (0, _actions.setBreakTime)(true);
     }, 1000);
   };
 };
@@ -29771,21 +29782,27 @@ var Timer = function Timer() {
   var minutes = pomodoroState.minutes,
       seconds = pomodoroState.seconds,
       isBreak = pomodoroState.isBreak,
-      isStarted = pomodoroState.isStarted;
+      isStarted = pomodoroState.isStarted,
+      pomodoroTime = pomodoroState.pomodoroTime;
   var startTimer = (0, _useCounter.useCounter)();
 
   var handleStart = function handleStart() {
-    pomodoroDispatch((0, _actions.startPomodoro)());
     setIsPause(false);
+    pomodoroDispatch((0, _actions.startPomodoro)());
   }; //To call the function startTimer just when the state change
 
 
   (0, _react.useEffect)(function () {
     startTimer();
-  }, [isStarted]);
+  }, [isStarted, isPause]);
 
   var handlePause = function handlePause() {
     setIsPause(true);
+  }; //TODO: check why seconds are not good when reset
+
+
+  var handleReset = function handleReset() {
+    pomodoroDispatch((0, _actions.setReset)(pomodoroTime));
   };
 
   (0, _react.useEffect)(function () {
@@ -29803,13 +29820,19 @@ var Timer = function Timer() {
   }, [seconds, minutes]);
   var timerMinutes = minutes < 10 ? "0".concat(minutes) : minutes;
   var timerSeconds = seconds < 10 ? "0".concat(seconds) : seconds;
+  console.log({
+    seconds: seconds
+  });
   return /*#__PURE__*/_react.default.createElement("div", null, /*#__PURE__*/_react.default.createElement("h1", null, "".concat(timerMinutes, ":").concat(timerSeconds)), /*#__PURE__*/_react.default.createElement("button", {
     type: "button",
     onClick: handleStart
   }, "Start"), /*#__PURE__*/_react.default.createElement("button", {
     type: "button",
     onClick: handlePause
-  }, "Pause"), isBreak ? "Break Time!" : "");
+  }, "Pause"), /*#__PURE__*/_react.default.createElement("button", {
+    type: "button",
+    onClick: handleReset
+  }, "Reset"), isBreak ? "Break Time!" : "");
 };
 
 exports.Timer = Timer;
@@ -29831,14 +29854,13 @@ function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return 
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
-// import {TimeInput} from "./time-input";
 var MainScreen = function MainScreen() {
   var _useContext = (0, _react.useContext)(_pomodoroContext.PomodoroContext),
       pomodoroState = _useContext.pomodoroState,
       pomodoroDispatch = _useContext.pomodoroDispatch;
 
   var pomodoroTime = pomodoroState.pomodoroTime,
-      breakTime = pomodoroState.breakTime; //TODO: set pomodoro timer to start at users preference (minutes)
+      breakTime = pomodoroState.breakTime;
 
   var setPomodoro = function setPomodoro(_ref) {
     var target = _ref.target;
@@ -29923,6 +29945,13 @@ var pomodoroReducer = function pomodoroReducer() {
     case "startPomodoro":
       return _objectSpread(_objectSpread({}, state), {}, {
         isStarted: true
+      });
+
+    case "setReset":
+      return _objectSpread(_objectSpread({}, state), {}, {
+        minutes: action.payload,
+        seconds: 0,
+        isStarted: false
       });
 
     case "startBreak":

@@ -38,6 +38,14 @@ export const pomodoroReducer = (state = {}, action) => {
                 isStarted: true,
             };
 
+        case "setReset":
+            return {
+                ...state,
+                minutes: action.payload,
+                seconds: 0,
+                isStarted: false,
+            };
+
         case "startBreak":
             return {
                 ...state,

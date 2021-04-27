@@ -39,3 +39,9 @@ export const setBreakTime = minutes => ({
     type: "setBreakTime",
     payload: minutes
 })
+
+//prettier-ignore
+export const setReset = minutes => ({
+    type: "setReset",
+    payload: minutes
+})

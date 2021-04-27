@@ -1,29 +1,35 @@
 import React, {useContext, useEffect, useState} from "react";
 import {PomodoroContext} from "../Context/pomodoro-context";
 import {useCounter} from "../hooks/use-counter";
-import {startPomodoro} from "../helpers/actions";
+import {startPomodoro, setReset} from "../helpers/actions";
 
 export const Timer = () => {
     const [firstRender, setFirstRender] = useState(true);
     const [isPause, setIsPause] = useState(false);
     const {pomodoroState, pomodoroDispatch} = useContext(PomodoroContext);
 
-    const {minutes, seconds, isBreak, isStarted} = pomodoroState;
+    const {minutes, seconds, isBreak, isStarted, pomodoroTime} = pomodoroState;
 
     const startTimer = useCounter();
 
     const handleStart = () => {
-        pomodoroDispatch(startPomodoro());
         setIsPause(false);
+        pomodoroDispatch(startPomodoro());
     };
 
     //To call the function startTimer just when the state change
     useEffect(() => {
+
         startTimer();
-    }, [isStarted]);
+    }, [isStarted, isPause]);
 
     const handlePause = () => {
         setIsPause(true);
+    };
+
+    //TODO: check why seconds are not good when reset
+    const handleReset = () => {
+        pomodoroDispatch(setReset(pomodoroTime));
     };
 
     useEffect(() => {
@@ -42,6 +48,7 @@ export const Timer = () => {
 
     const timerMinutes = minutes < 10 ? `0${minutes}` : minutes;
     const timerSeconds = seconds < 10 ? `0${seconds}` : seconds;
+    console.log({seconds});
 
     return (
         <div>
@@ -51,6 +58,9 @@ export const Timer = () => {
             </button>
             <button type={"button"} onClick={handlePause}>
                 {"Pause"}
+            </button>
+            <button type={"button"} onClick={handleReset}>
+                {"Reset"}
             </button>
             {isBreak ? "Break Time!" : ""}
         </div>
