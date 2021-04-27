@@ -6,15 +6,27 @@ import {
     setSeconds,
     startBreak,
     finishBreak,
+    setMinutes,
 } from "../helpers/actions";
 
 export const useCounter = () => {
     const {pomodoroState, pomodoroDispatch} = useContext(PomodoroContext);
-    const {minutes, seconds, isBreak} = pomodoroState;
+    const {
+        minutes,
+        seconds,
+        isBreak,
+        breakTime,
+        pomodoroTime,
+        isStarted,
+    } = pomodoroState;
 
     return () => {
         const interval = setTimeout(() => {
             clearInterval(interval);
+
+            if (!isStarted) {
+                return;
+            }
 
             if (seconds !== 0) {
                 pomodoroDispatch(countdownSeconds(seconds));
@@ -32,11 +44,12 @@ export const useCounter = () => {
             if (isBreak) {
                 pomodoroDispatch(finishBreak());
                 console.log("Break is over");
+                pomodoroDispatch(setMinutes(pomodoroTime));
                 return;
             }
             //If seconds and minutes = 0, the pomodoro is over
             console.log("Pomodoro is over");
-            pomodoroDispatch(startBreak());
+            pomodoroDispatch(startBreak(breakTime));
         }, 1000);
     };
 };

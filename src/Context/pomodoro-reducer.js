@@ -16,21 +16,39 @@ export const pomodoroReducer = (state = {}, action) => {
                 ...state,
                 seconds: 59,
             };
+        case "setBreakMinutes":
+            return {
+                ...state,
+                pomodoroTime: action.payload,
+            };
         case "setMinutes":
             return {
                 ...state,
-                minutes: 25,
+                minutes: action.payload,
             };
+        case "setBreakTime":
+            return {
+                ...state,
+                breakTime: action.payload,
+            };
+
+        case "startPomodoro":
+            return {
+                ...state,
+                isStarted: true,
+            };
+
         case "startBreak":
             return {
                 ...state,
                 isBreak: true,
-                minutes: 1,
+                minutes: action.payload,
             };
         case "finishBreak":
             return {
                 ...state,
                 isBreak: false,
+                isStarted: false,
             };
 
         default:

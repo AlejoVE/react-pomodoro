@@ -10,6 +10,8 @@ export const App = () => {
         minutes: 0,
         seconds: 5,
         breakTime: 5,
+        pomodoroTime: 25,
+        isStarted: false,
     };
 
     const [pomodoroState, pomodoroDispatch] = useReducer(
