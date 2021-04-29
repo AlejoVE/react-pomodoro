@@ -62,6 +62,6 @@ export const useCounter = () => {
                 type: "setModal",
                 payload: true,
             });
-        }, 50);
+        }, 1000);
     };
 };
