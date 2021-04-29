@@ -7,11 +7,14 @@ import {pomodoroReducer} from "./Context/pomodoro-reducer";
 export const App = () => {
     const initialState = {
         isBreak: false,
-        minutes: 0,
-        seconds: 5,
+        minutes: 25,
+        seconds: 0,
         breakTime: 5,
         pomodoroTime: 25,
         isStarted: false,
+        isReset: false,
+        isPause: true,
+        modalIsOpen: false,
     };
 
     const [pomodoroState, pomodoroDispatch] = useReducer(

@@ -19,7 +19,8 @@
   "homepage": "https://github.com/AlejoVE/react-pomodoro#readme",
   "dependencies": {
     "react": "^17.0.2",
-    "react-dom": "^17.0.2"
+    "react-dom": "^17.0.2",
+    "react-modal": "^3.13.1"
   },
   "devDependencies": {
     "@babel/core": "^7.13.16",

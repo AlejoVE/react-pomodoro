@@ -10,8 +10,10 @@ export const countdownMinutes = minutes => ({
     payload: minutes,
 });
 
-export const setSeconds = () => ({
+//prettier-ignore
+export const setSeconds = seconds => ({
     type: "setSeconds",
+    payload: seconds
 });
 //prettier-ignore
 export const setMinutes = minutes => ({

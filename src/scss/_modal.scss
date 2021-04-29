@@ -1,0 +1,22 @@
+.modal-container {
+    height: 50vh;
+    width: 50vw;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    h4 {
+        font-size: 100px;
+    }
+}
+
+.buttons-container-modal {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+
+    button {
+        width: 40%;
+    }
+}
